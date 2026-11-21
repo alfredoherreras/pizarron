@@ -50,12 +50,29 @@ input,textarea{font:inherit;color:var(--ink)}
 .mechip .av{width:28px;height:28px}
 .av{display:inline-grid;place-items:center;border-radius:50%;background:var(--card);box-shadow:0 0 0 2px var(--c,#999);font-size:15px;line-height:1;flex:none}
 
+.impbar{display:flex;align-items:center;gap:8px;margin:0 12px 8px;padding:9px 12px;border-radius:12px;background:#e8f1ff;color:#123e8a;font-size:13px;text-align:left;width:calc(100% - 24px)}
+.impbar b{font-weight:700}.impbar .go{margin-left:auto;font-weight:700;white-space:nowrap}
+[data-theme=dark] .impbar{background:#1b2a45;color:#b9d0ff}
+.imp-p{margin-top:14px}
+.imp-p h4{margin:0 0 4px;font-size:14px}.imp-p h4 small{color:var(--muted);font-weight:500}
+.chg{display:flex;gap:10px;align-items:flex-start;padding:9px 4px;border-bottom:1px dashed var(--line);font-size:13.5px;cursor:pointer}
+.chg input{width:20px;height:20px;margin:1px 0 0;flex:none;accent-color:var(--ok)}
+.chg .old{color:var(--muted);text-decoration:line-through;margin-right:4px}
+.chg .new{font-weight:700;color:var(--blue)}.chg .new .mk{margin-left:0}
+.chg .warn{display:block;font-size:11.5px;color:#b06a00;margin-top:2px}
+[data-theme=dark] .chg .warn{color:#ffc266}
+.chg.contra{background:rgba(255,170,0,.08)}
+.dudas{background:var(--chip);border-radius:10px;padding:8px 12px;font-size:12.5px;margin-top:10px}
+.dudas li{margin:3px 0}
+.stick{position:sticky;bottom:-18px;background:var(--card);padding:10px 0 4px;margin-top:10px;display:grid;gap:8px}
 .demo{margin:0 12px 6px;padding:6px 10px;border-radius:8px;background:repeating-linear-gradient(45deg,#fff1c2,#fff1c2 8px,#ffe9a6 8px,#ffe9a6 16px);color:#6b4e00;font-size:12px;text-align:center}
 [data-theme=dark] .demo{background:#3a3010;color:#ffd970}
 
 /* ---------- trabajando ahora ---------- */
 .now{display:flex;gap:6px;overflow-x:auto;padding:2px 12px 8px;scrollbar-width:none}
 .now::-webkit-scrollbar{display:none}
+.nchip .x{display:grid;place-items:center;width:22px;height:22px;margin-left:2px;border-radius:50%;background:rgba(0,0,0,.08);font-size:12px;font-weight:700;color:var(--ink)}
+.nchip.relall{background:transparent;border:1px dashed var(--danger);color:var(--danger);font-weight:600;padding:4px 10px}
 .nchip{display:flex;align-items:center;gap:6px;flex:none;padding:4px 10px 4px 4px;border-radius:20px;background:var(--card);border:1px solid var(--line);font-size:12px;white-space:nowrap}
 .nchip .av{width:24px;height:24px;font-size:13px}
 .nchip em{font-style:normal;font-weight:700;color:var(--red);font-family:var(--marker);font-size:14px}
@@ -90,11 +107,19 @@ table.board{border-collapse:separate;border-spacing:0;min-width:100%}
 .sub{display:flex;gap:5px;align-items:center;margin-top:3px;font-size:11px;color:var(--muted)}
 .tec{font:700 10px/1 var(--font);padding:2px 5px;border-radius:4px;color:#fff;background:#c94141;letter-spacing:.3px}
 .tec.srs{background:#7a4cc2} .tec.bh{background:#1d8a9a}
-.board td.cell{min-width:62px;cursor:pointer;position:relative}
+.board td.cell{min-width:84px;cursor:pointer;position:relative;padding:4px 3px}
 .board td.cell:active{filter:brightness(.94)}
 .board td.cell.mine{background:var(--mine)!important}
 .d{font:400 16px/1 var(--marker);color:var(--blue)}
-.by{font-size:12px;margin-top:3px;line-height:1}
+.by{display:flex;align-items:center;justify-content:center;gap:3px;font-size:11px;line-height:1;margin-top:4px;color:var(--muted);white-space:nowrap}
+.by .bn{max-width:60px;overflow:hidden;text-overflow:ellipsis}
+.wp{display:inline-flex;align-items:center;gap:4px;max-width:80px;padding:3px 7px 3px 5px;border-radius:12px;border:1.5px solid var(--c);background:var(--card);font-size:11px;line-height:1.1;color:var(--ink);white-space:nowrap;margin-top:4px}
+.wp.solo{margin-top:0}
+.wp b{overflow:hidden;text-overflow:ellipsis;font-weight:700}
+.wp i{width:7px;height:7px;border-radius:50%;background:var(--c);flex:none;animation:blink 1.4s infinite}
+.wp.stale{opacity:.55}.wp.stale i{animation:none}
+body.noNames .bn,body.noNames .wp b{display:none}
+body.noNames .board td.cell{min-width:62px}
 .mk{font:700 15px/1 var(--marker);color:var(--red);margin-left:3px}
 .mk.solo{font-size:19px;margin:0}
 .pmk{font:700 13px/1 var(--marker);color:var(--red)}
@@ -192,6 +217,7 @@ tr.arch td{opacity:.55}
     <button class="mechip" id="meChip" hidden></button>
   </header>
   <div class="demo" id="demoBar" hidden>Demo · datos ficticios, los cambios no se guardan</div>
+  <div id="imps"></div>
   <div class="now" id="now"></div>
   <div class="tools">
     <div class="search"><input id="q" type="search" placeholder="Buscar nombre o expediente" autocomplete="off"></div>
@@ -225,7 +251,7 @@ const tg = window.Telegram && window.Telegram.WebApp;
 const DEMO = !API_URL || !(tg && tg.initData);
 const $ = id => document.getElementById(id);
 const S = { me:null, users:[], umap:{}, patients:[], version:0, today:localISO(new Date()),
-  filter:'all', q:'', archived:false, lastSync:0, lastTry:0, syncing:false, error:null, inflight:0, mut:0, poll:0, registered:false };
+  filter:'all', q:'', archived:false, names:true, lastSync:0, lastTry:0, syncing:false, error:null, inflight:0, mut:0, poll:0, registered:false };
 
 /* ---------- utilidades ---------- */
 function localISO(d){ return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0'); }
@@ -276,7 +302,7 @@ function applyState(r){
   if (!r || r.unchanged){ return; }
   if (r.needsRegistration){ showRegistration(r); return; }
   S.me=r.me; S.users=r.users; S.umap=Object.fromEntries(r.users.map(u=>[u.name,u]));
-  S.patients=r.patients; S.version=r.version; if(r.today) S.today=r.today;
+  S.patients=r.patients; S.imports=r.imports||[]; S.version=r.version; if(r.today) S.today=r.today;
   if(!S.registered){ S.registered=true; $('reg').hidden=true; }
   render();
 }
@@ -320,7 +346,7 @@ function visibleRows(){
     return true;
   });
 }
-function render(){ renderMe(); renderNow(); renderChips(); renderBoard(); renderSync(); }
+function render(){ renderMe(); renderImports(); renderNow(); renderChips(); renderBoard(); renderSync(); }
 
 function renderMe(){
   const b=$('meChip'); if(!S.me){ b.hidden=true; return; }
@@ -331,7 +357,9 @@ function renderNow(){
   S.patients.forEach(p=>STAGES.forEach(([k,l])=>{ const c=p.st[k]; if(c.trabaja) items.push({p,k,l,u:user(c.trabaja),t:Date.parse(c.desde)||0}); }));
   const me=S.me&&S.me.name;
   items.sort((a,b)=>((b.u.name===me)-(a.u.name===me))||(b.t-a.t));
-  $('now').innerHTML = items.length ? items.map(i=>`<button class="nchip ${i.u.name===me?'me':''}" data-pid="${esc(i.p.id)}" data-st="${i.k}">${av(i.u)}<span>${esc(i.u.name)}</span><em>${i.l}</em><small>${esc(i.p.expediente)}</small></button>`).join('')
+  const nMine=items.filter(i=>i.u.name===me).length;
+  $('now').innerHTML = items.length ? items.map(i=>`<button class="nchip ${i.u.name===me?'me':''}" data-pid="${esc(i.p.id)}" data-st="${i.k}">${av(i.u)}<span>${esc(i.u.name)}</span><em>${i.l}</em><small>${esc(i.p.expediente)}</small>${i.u.name===me?'<span class="x" data-rel="1" title="Ya no lo estoy trabajando">✕</span>':''}</button>`).join('')
+      + (nMine>1?`<button class="nchip relall" data-relall="1">✕ Soltar todo lo mío (${nMine})</button>`:'')
     : '<div class="nobody">Nadie está trabajando ahora · toca una celda para marcarla</div>';
 }
 function renderChips(){
@@ -349,9 +377,9 @@ function cellHTML(p,k){
   const mine = w && S.me && c.trabaja===S.me.name;
   let h='';
   const mk=c.marca?`<span class="mk ${c.fecha?'':'solo'}">${esc(c.marca)}</span>`:'';
-  if (c.fecha) h+=`<div class="d">${dm(c.fecha)}${mk}</div>${u?`<div class="by" title="${esc(u.name)}">${esc(u.icon)}</div>`:''}`;
+  if (c.fecha) h+=`<div class="d">${dm(c.fecha)}${mk}</div>${u?`<div class="by" title="${esc(u.name)}"><span>${esc(u.icon)}</span><span class="bn">${esc(u.name)}</span></div>`:''}`;
   else if (mk) h+=`<div>${mk}</div>`;
-  if (w) h+=`<span class="av wk ${c.fecha?'':'solo'} ${stale?'stale':''}" style="--c:${esc(w.color)}" title="${esc(w.name)}">${esc(w.icon)}</span>`;
+  if (w) h+=`<div><span class="wp ${h?'':'solo'} ${stale?'stale':''}" style="--c:${esc(w.color)}" title="${esc(w.name)} · ${esc(rel(c.desde))}"><i></i>${esc(w.icon)}<b>${esc(w.name)}</b></span></div>`;
   if (!h) h='<div class="dash"></div>';
   return `<td class="cell ${mine?'mine':''}" data-act="cell" data-st="${k}">${h}</td>`;
 }
@@ -486,14 +514,68 @@ function openMe(){
   const h=`<div class="sh-k">Equipo</div><div class="sh-s">Cada quien tiene su icono en el pizarrón</div>
   <div class="sec"><div class="ugrid">${S.users.map(u=>`<div class="ub ${S.me&&u.name===S.me.name?'me':''}" style="--c:${esc(u.color)}">${av(u)}${esc(u.name)}</div>`).join('')}</div></div>
   <div class="sec"><div class="tg"><span>Mostrar pacientes archivados</span><button class="sw ${S.archived?'on':''}" id="swA" aria-label="Mostrar archivados"></button></div>
-  <button class="b ghost" id="rf">↻ Actualizar ahora</button></div>
-  <div class="sec"><h3>Cómo se usa</h3><div class="muted" style="font-size:13px">Toca una celda → <b>Estoy trabajando</b> pone tu icono (parpadea).
+  <div class="tg"><span>Mostrar nombres en la tabla</span><button class="sw ${S.names?'on':''}" id="swN" aria-label="Mostrar nombres"></button></div>
+  <button class="b ghost" id="relMine">✕ Soltar todo lo que tengo marcado</button>
+  <button class="b ghost" id="rf" style="margin-top:8px">↻ Actualizar ahora</button></div>
+  <div class="sec"><h3>Cómo se usa</h3><div class="muted" style="font-size:13px">Toca una celda → <b>Estoy trabajando</b> pone tu nombre e icono (punto parpadeando). Para quitarlo: la ✕ de tu etiqueta en la barra de arriba, o <b>Soltar</b> en la celda.
+  📷 Para actualizar desde el pizarrón físico, manda una foto al bot por chat privado y luego revisa el aviso azul.
   Al terminar → <b>Completado</b> pone la fecha y tu icono pequeño debajo. Toca el nombre o las notas para notas, historial, editar o archivar.
   Se actualiza solo cada pocos segundos.</div></div>
   <div class="credit">Diseño: AH · alfredoherreras@hotmail.com · INCan 2026</div>`;
   openSheet(h, sh=>{
     $('swA').onclick=()=>{ S.archived=!S.archived; $('swA').classList.toggle('on',S.archived); refresh(true); };
     $('rf').onclick=()=>{ closeSheet(); refresh(true); };
+    $('relMine').onclick=()=>{ closeSheet(); releaseAllMine(); };
+    $('swN').onclick=()=>{ S.names=!S.names; $('swN').classList.toggle('on',S.names); applyNames(); try{ localStorage.setItem('pz_names', S.names?'1':'0'); }catch(e){} };
+  });
+}
+
+async function releaseAllMine(){
+  const me=S.me&&S.me.name; if(!me) return;
+  const mine=[]; S.patients.forEach(p=>STAGES.forEach(([k])=>{ if(p.st[k].trabaja===me) mine.push([p,k]); }));
+  if(!mine.length){ toast('No tienes nada marcado'); return; }
+  if(!await ask(`¿Quitar tu icono de ${mine.length} celda${mine.length>1?'s':''}? (ya no lo estás trabajando)`,'Soltar todo')) return;
+  try{ await act('releaseMine',{},()=>mine.forEach(([p,k])=>{p.st[k].trabaja='';p.st[k].desde='';}), `Listo: ${mine.length} marca${mine.length>1?'s':''} quitada${mine.length>1?'s':''}`); }catch(e){}
+}
+
+/* ---------- importaciones desde foto ---------- */
+function renderImports(){
+  const im=S.imports||[];
+  $('imps').innerHTML = im.map(x=>`<button class="impbar" data-imp="${esc(x.id)}">📷 <span><b>Foto del pizarrón</b> · ${esc(x.usuario)} · ${esc(String(x.fecha).slice(11,16))}<br><small>${esc(x.resumen)}</small></span><span class="go">Revisar →</span></button>`).join('');
+}
+function chgText(c){
+  const mk=x=>`<span class="mk">${esc(x)}</span>`;
+  const L=c.stage?LBL[c.stage]+': ':'';
+  if (c.tipo==='nuevo'){
+    const a=c.a, parts=STAGES.map(([k,l])=>{ const z=a.st[k]||{}; return (z.fecha||z.marca)?`${l} ${z.fecha?dm(z.fecha):''}${z.marca?' '+esc(z.marca):''}`:''; }).filter(Boolean).join(' · ');
+    return `<span class="new">Paciente nuevo</span> · ${esc(a.tecnica||'')}${a.marca?' '+mk(a.marca):''}<br><small class="muted">${parts||'sin fechas'}${a.notas?' · '+esc(a.notas):''}</small>`;
+  }
+  if (c.tipo==='archivar') return `<span class="new">Archivar</span> <small class="muted">(ya no está en la foto)</small>`;
+  const name={fecha:'',marca:'símbolo ',nota:'Nota: ',tecnica:'Técnica: ',pmarca:'Marca: '}[c.tipo]||'';
+  const fmt=x=> c.tipo==='fecha'? dm(x) : (c.tipo==='marca'||c.tipo==='pmarca'? mk(x) : esc(x));
+  return `${L}${name}${c.de?`<span class="old">${fmt(c.de)}</span>`:''}<span class="new">${fmt(c.a)}</span>`;
+}
+async function openImport(id){
+  openSheet('<div class="sh-k">Foto del pizarrón</div><div class="sh-s">Cargando cambios…</div>');
+  let imp; try{ imp=(await api('getImport',{id})).imp; }catch(e){ closeSheet(); toast(e.message,true); return; }
+  if (imp.estado!=='pendiente'){ closeSheet(); toast('Esta importación ya fue '+imp.estado); refresh(true); return; }
+  const groups=[], gmap={};
+  imp.cambios.forEach(c=>{ const key=c.pid||('n'+c.k); if(!gmap[key]){ gmap[key]={nombre:c.nombre, exp:c.exp, items:[]}; groups.push(gmap[key]); } gmap[key].items.push(c); });
+  const nCon=imp.cambios.filter(c=>c.de&&!c.def&&c.tipo!=='archivar').length;
+  let h=`<div class="sh-k">Foto del pizarrón</div><div class="sh-s">Subida por ${esc(imp.usuario)} · ${esc(imp.fecha)} · ${imp.cambios.length} cambios</div>
+  <p class="muted" style="font-size:12.5px;margin:10px 0 0">Vienen <b>marcados</b> los que llenan celdas vacías de la app. Vienen <b>desmarcados</b> los que contradicen lo que ya está en la app${nCon?` (${nCon})`:''}, los que tienen dudas de lectura y los pacientes que ya no aparecen en la foto: márcalos solo si la foto tiene razón.</p>`;
+  if (imp.dudas&&imp.dudas.length) h+=`<div class="dudas"><b>❓ No se leía bien</b><ul style="margin:4px 0 0;padding-left:18px">${imp.dudas.map(d=>`<li>${esc(d)}</li>`).join('')}</ul></div>`;
+  h+=groups.map(g=>`<div class="imp-p"><h4>${esc(g.nombre)} <small>· ${esc(g.exp)}</small></h4>${g.items.map(c=>`<label class="chg ${c.de&&!c.def?'contra':''}"><input type="checkbox" data-k="${c.k}" ${c.def?'checked':''}><span>${chgText(c)}${c.aviso?`<span class="warn">⚠ ${esc(c.aviso)}</span>`:''}${c.de&&c.tipo!=='archivar'&&!c.def?'<span class="warn">⚠ Contradice lo que ya está en la app</span>':''}</span></label>`).join('')}</div>`).join('');
+  h+=`<div class="stick"><div class="two"><button class="b ghost" id="selAll">Marcar todo</button><button class="b ghost" id="selNone">Ninguno</button></div>
+    <button class="b ok" id="impGo"></button><button class="b ghost danger" id="impNo">Descartar esta foto</button></div>`;
+  openSheet(h, sh=>{
+    const boxes=[...sh.querySelectorAll('input[data-k]')];
+    const upd=()=>{ const n=boxes.filter(b=>b.checked).length; $('impGo').textContent=`✓ Aplicar ${n} cambio${n===1?'':'s'}`; $('impGo').disabled=!n; };
+    boxes.forEach(b=>b.onchange=upd); upd();
+    $('selAll').onclick=()=>{ boxes.forEach(b=>b.checked=true); upd(); };
+    $('selNone').onclick=()=>{ boxes.forEach(b=>b.checked=false); upd(); };
+    $('impGo').onclick=async()=>{ const sel=boxes.filter(b=>b.checked).map(b=>+b.dataset.k); closeSheet(); try{ await act('applyImport',{id,sel},null,`${sel.length} cambios aplicados desde la foto`); }catch(e){} };
+    $('impNo').onclick=async()=>{ if(!await ask('¿Descartar los cambios de esta foto? No se aplicará nada.','Descartar',true)) return; closeSheet(); try{ await act('discardImport',{id},null,'Foto descartada'); }catch(e){} };
   });
 }
 
@@ -531,13 +613,21 @@ $('board').addEventListener('click',e=>{
   else if (td.dataset.act==='note') openPatient(pid, true);
   else openPatient(pid);
 });
-$('now').addEventListener('click',e=>{
+$('now').addEventListener('click',async e=>{
+  if (e.target.closest('[data-relall]')){ releaseAllMine(); return; }
   const b=e.target.closest('.nchip'); if(!b) return;
+  if (e.target.closest('[data-rel]')){
+    const p=byId(b.dataset.pid); if(!p) return; const c=p.st[b.dataset.st];
+    haptic('light');
+    try{ await act('release',{pid:p.id,stage:b.dataset.st},()=>{c.trabaja='';c.desde='';}, `Quitado: ya no trabajas ${LBL[b.dataset.st]} de ${p.expediente}`); }catch(err){}
+    return;
+  }
   const tr=document.querySelector(`tr[data-pid="${CSS.escape(b.dataset.pid)}"]`);
   if (tr){ tr.scrollIntoView({block:'center',behavior:'smooth'}); tr.classList.remove('flash'); void tr.offsetWidth; tr.classList.add('flash'); }
   else { S.filter='all'; S.q=''; $('q').value=''; render(); }
   openCell(b.dataset.pid, b.dataset.st);
 });
+$('imps').addEventListener('click',e=>{ const b=e.target.closest('[data-imp]'); if(b){ haptic('light'); openImport(b.dataset.imp); } });
 $('chips').addEventListener('click',e=>{ const b=e.target.closest('[data-f]'); if(!b) return; S.filter=b.dataset.f; haptic('light'); renderChips(); renderBoard(); });
 $('q').addEventListener('input',e=>{ S.q=e.target.value; renderBoard(); });
 $('scrim').onclick=closeSheet;
@@ -563,6 +653,9 @@ if (tg){
   try{ tg.BackButton.onClick(closeSheet); tg.onEvent('themeChanged',applyTheme); }catch(e){}
 }
 applyTheme();
+try{ S.names = localStorage.getItem('pz_names')!=='0'; }catch(e){}
+function applyNames(){ document.body.classList.toggle('noNames', !S.names); }
+applyNames();
 
 /* =====================================================================
    MODO DEMOSTRACIÓN (sin servidor): datos ficticios en memoria
@@ -590,9 +683,20 @@ const Demo = (()=>{
     mk('d11','Paciente Demo Once','900111','SBRT+BH',[F(-5,'SS'),W('Lozano',3*24*60)])
   ];
   let ver=Date.now(); const log=[];
+  let imports=[{id:'f1',fecha:localISO(new Date())+' 08:55:10',usuario:'Fer',estado:'pendiente',resumen:'1 paciente(s) nuevo(s) · 3 fecha(s) · 1 símbolo(s) · 1 que ya no están en la foto · 1 que contradicen la app',
+    dudas:['900112: SIM ¿11-11 o 17-11?'],
+    cambios:[
+      {k:0,tipo:'fecha',pid:'d8',nombre:'Paciente Demo Ocho',exp:'900108',stage:'cont',de:'',a:day(0),def:true},
+      {k:1,tipo:'marca',pid:'d8',nombre:'Paciente Demo Ocho',exp:'900108',stage:'plan',de:'',a:'α',def:true},
+      {k:2,tipo:'fecha',pid:'d4',nombre:'Paciente Demo Cuatro',exp:'900104',stage:'cont',de:'',a:day(-12),def:true},
+      {k:3,tipo:'fecha',pid:'d10',nombre:'Paciente Demo Diez',exp:'900110',stage:'plan',de:day(-5),a:day(-4),def:false},
+      {k:4,tipo:'nuevo',nombre:'Paciente Demo Doce',exp:'900112',def:false,aviso:'SIM ¿11-11 o 17-11?',a:{nombre:'Paciente Demo Doce',expediente:'900112',tecnica:'SRS',marca:'',notas:'',st:{sim:{fecha:day(-1),marca:''},cont:{},plan:{},revm:{},qa:{}}}},
+      {k:5,tipo:'archivar',pid:'d6',nombre:'Paciente Demo Seis',exp:'900106',def:false,aviso:'No aparece en la foto'}
+    ]}];
   const clone=o=>JSON.parse(JSON.stringify(o));
   const state=(since,arch)=> since && String(since)===String(ver) ? {ok:true,unchanged:true,version:ver}
-    : {ok:true,version:ver,today:localISO(new Date()),me:users.find(u=>u.name===ME),users,patients:clone(pats.filter(p=>arch||!p.archivado))};
+    : {ok:true,version:ver,today:localISO(new Date()),me:users.find(u=>u.name===ME),users,patients:clone(pats.filter(p=>arch||!p.archivado)),
+       imports:imports.filter(i=>i.estado==='pendiente').map(i=>({id:i.id,fecha:i.fecha,usuario:i.usuario,resumen:i.resumen}))};
   const L=(u,p,a,c,d)=>log.push({t:new Date().toLocaleString('es-MX'),u,pid:p.id,a,c:c||'',d:d||''});
   function apply(a,x,me){
     const p=pats.find(p=>p.id===x.pid); const c=p&&x.stage&&p.st[x.stage]; const Lb=LBL[x.stage];
@@ -621,6 +725,15 @@ const Demo = (()=>{
     if(a==='state') return res(state(x.since,x.archived));
     if(a==='history') return res({ok:true,history:log.filter(l=>l.pid===x.pid).slice(-40).reverse()});
     if(a==='register') return res(state(0));
+    if(a==='releaseMine'){ pats.forEach(p=>STAGES.forEach(([k])=>{ if(p.st[k].trabaja===ME){ L(ME,p,'soltó',LBL[k]); p.st[k].trabaja=''; p.st[k].desde=''; } })); ver=Date.now(); return res(state(0,x.archivedView)); }
+    if(a==='getImport') return res({ok:true,imp:clone(imports.find(i=>i.id===x.id))});
+    if(a==='applyImport'||a==='discardImport'){ const im=imports.find(i=>i.id===x.id);
+      if(a==='applyImport') im.cambios.filter(c=>x.sel.includes(c.k)).forEach(c=>{
+        if(c.tipo==='nuevo'){ const n=mk('n'+Date.now()+c.k,c.a.nombre,c.a.expediente,c.a.tecnica,[]); STAGES.forEach(([k])=>Object.assign(n.st[k],c.a.st[k]||{})); pats.push(n); return; }
+        const p=pats.find(p=>p.id===c.pid); if(!p) return;
+        if(c.tipo==='fecha'){ p.st[c.stage].fecha=c.a; p.st[c.stage].por=''; } else if(c.tipo==='marca') p.st[c.stage].marca=c.a; else if(c.tipo==='archivar') p.archivado=true; });
+      im.estado = a==='applyImport'?'aplicada':'descartada'; ver=Date.now(); return res(state(0,x.archivedView)); }
+
     apply(a,x,ME); res(state(0,x.archivedView)); }catch(e){ rej(e); } }, 220)); } };
 })();
 
